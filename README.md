@@ -8,7 +8,7 @@ This repository contains the Arduino/ESP32 source code supporting the manuscript
 
 Currently, it includes the following complementary systems:  
 
-1. **Batsy4-Pro** – a Teensy 4.1–based multichannel ultrasonic recorder designed for high-fidelity capture of echolocation calls at 192 kHz or higher.  
+1. **Batsy4-Pro** – a Teensy 4.1–based multichannel ultrasonic recorder designed for high-fidelity capture of echolocation calls at up to 192 kHz.  
 2. **Espertillio** – a heterodyning, recording & playback unit using an ESP32, capable of live monitoring, bat call playback, and SD card recording.  
 3. **Esperdyne** - a heterodyning unit based on ESP32 with playback from an SD-stored `.wav` file. 
 
