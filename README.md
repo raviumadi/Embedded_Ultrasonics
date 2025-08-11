@@ -8,8 +8,9 @@ This repository contains the Arduino/ESP32 source code supporting the manuscript
 
 Currently, it includes the following complementary systems:  
 
-1. **Batsy4Pro** – a Teensy 4.1–based multichannel ultrasonic recorder designed for high-fidelity capture of echolocation calls at 192 kHz or higher.  
-2. **ESP32_HRP** – a heterodyning, recording & playback unit using an ESP32, capable of live monitoring, bat call playback, and SD card recording.  
+1. **Batsy4-Pro** – a Teensy 4.1–based multichannel ultrasonic recorder designed for high-fidelity capture of echolocation calls at 192 kHz or higher.  
+2. **Espertillio** – a heterodyning, recording & playback unit using an ESP32, capable of live monitoring, bat call playback, and SD card recording.  
+3. **Esperdyne** - a heterodyning unit based on ESP32 with playback from an SD-stored `.wav` file. 
 
 Together, these systems allow researchers to perform **field experiments** involving localisation, call analysis, and behavioural playback under natural foraging conditions.
 
@@ -26,7 +27,7 @@ More projects will be added as the systems are developed and tested. Check back 
 
 ## Features
 
-### Batsy4Pro
+### Batsy4-Pro
 
 - Records **up to 4 ultrasonic channels** at 192 kHz or higher.
 - Uses **PSRAM buffering**.
@@ -46,7 +47,8 @@ More projects will be added as the systems are developed and tested. Check back 
 ### Esperdyne
 
 - Live **Heterodyne* monitoring**
-- Playback single channel `.wav` from SD card - intended for testing and possible field experiments at any frequency band
+- Play single-channel `.wav` from SD card - intended for testing and possible field experiments at any frequency band. Modify the `channels` variable to make it stereo-capable. 
+- Output may be piped via power amplifiers and desired speakers. 
 
 **[\* See the rotary encoder method in Batsy4-Pro for tunable carrier frequency.]** 
 
