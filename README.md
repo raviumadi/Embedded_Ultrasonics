@@ -1,6 +1,6 @@
 # Embedded Ultrasonics 
 
-##  Open Source Microcontroller Systems for Studying Echolocating Bats and Other Vocally Active Animals
+##  Open Source Microcontroller-Based Systems for Studying Echolocating Bats and Other Vocally Active Animals
 
 ## Overview
 
