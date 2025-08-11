@@ -86,15 +86,14 @@ See folder `field_recordings` for bat call sequences recorded using the Batsy4-P
 
 ## License
 
-This work is licensed under a  
-[Creative Commons Attribution–NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/).
+This work is licensed under a [Creative Commons Attribution–NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/).
 
 ---
 
 ## Disclaimer
 
 This code is provided **"as is"** without any warranties, express or implied.  
-The author makes no guarantee regarding correctness, safety, or suitability for any particular purpose.  
+The author makes no guarantee regarding correctness, safety, or suitability for any of your particular purposes.  
 You are responsible for testing and validating the code before use — especially in safety-critical or regulatory applications.
 
 Use at your own risk.

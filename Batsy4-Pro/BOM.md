@@ -19,7 +19,8 @@ The following tables contain the Bill of Materials for the Batsy4-Pro and the fi
 | 6-Pin Connector                          | Mic power and signal connection                              | 1        |            14.99 | Amazon.de                                                    |
 | CR2032                                   | RTC Battery                                                  | 1        |             1.50 | Generic                                                      |
 | SPU0410LR5H-QB analogue MEMS microphones | Array Mics                                                   | 4        |             0.50 | Digikey.de                                                   |
-|                                          |                                                              |          |   **120.28 Eur** |                                                              |
+| APS6404L-3SQR PSRAM - 8MB - SOP8         | External Memory                                              | 2        |             2.50 | Tinytronics.nl                                               |
+|                                          |                                                              |          |   **125.28 Eur** |                                                              |
 
 
 

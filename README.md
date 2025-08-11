@@ -61,12 +61,12 @@ More projects will be added as the systems are developed and tested. Check back 
 - Teensy 4.1 microcontroller.
 - Multiple ultrasonic microphones (e.g., Knowles MEMS series).
 - SD card (high-speed, Class 10 recommended).
-- PSRAM module (optional, but recommended for long recordings).
+- APS6404L-3SQR PSRAM - 8MB (or equivalent)
 - PCM5102A or similar DAC
 - WM8782 I2S ADC
 - Toggle buttons, rotary encoders etc... (See code)
 
-### ESP32_HRP
+### Espertillio/Esperdyne
 
 - ESP32 development board with I2S microphone and DAC output (e.g., PCM5102A).
 - SD card breakout module.
