@@ -4,7 +4,11 @@
 
 ## Overview
 
-This repository contains the Arduino/ESP32 source code supporting the manuscript *"Embedded Ultrasonics: A Microcontroller-Based Multichannel Ultrasound Recorder for Behavioural Field Studies"* 
+This repository contains the Arduino/ESP32 source code supporting the manuscript 
+
+**"Embedded Ultrasonics: A Microcontroller-Based Multichannel Ultrasound Recorder for Behavioural Field Studies"**
+
+Preprint Will be Soon Available.
 
 Currently, it includes the following complementary systems:  
 
@@ -64,7 +68,7 @@ More projects will be added as the systems are developed and tested. Check back 
 - APS6404L-3SQR PSRAM - 8MB (or equivalent)
 - PCM5102A or similar DAC
 - WM8782 I2S ADC
-- Toggle buttons, rotary encoders etc... (See code)
+- Toggle buttons, rotary encoders etc (See code and BOM)
 
 ### Espertillio/Esperdyne
 
