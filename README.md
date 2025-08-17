@@ -6,15 +6,15 @@
 
 This repository contains the Arduino/ESP32 source code supporting the manuscript 
 
-**"Embedded Ultrasonics: A Microcontroller-Based Multichannel Ultrasound Recorder for Behavioural Field Studies"**
+**"[Embedded Ultrasonics: A Microcontroller-Based Multichannel Ultrasound Recorder for Behavioural Field Studies](https://www.biorxiv.org/content/10.1101/2025.08.11.669530v1)"**
 
-Preprint Will be Soon Available.
+Preprint Available on BioRxiv at: [ https://doi.org/10.1101/2025.08.11.669530](https://www.biorxiv.org/content/10.1101/2025.08.11.669530v1)
 
 Currently, it includes the following complementary systems:  
 
 1. **Batsy4-Pro** – a Teensy 4.1–based multichannel ultrasonic recorder designed for high-fidelity capture of echolocation calls at up to 192 kHz.  
-2. **Espertillio** – a heterodyning, recording & playback unit using an ESP32, capable of live monitoring, bat call playback, and SD card recording.  
-3. **Esperdyne** - a heterodyning unit based on ESP32 with playback from an SD-stored `.wav` file. 
+2. **Espertillio** – a heterodyning, recording & playback unit using an ESP32, capable of live monitoring, bat call playback, and SD card recording.  (Under further development)
+3. **Esperdyne** - a heterodyning unit based on ESP32 with playback from an SD-stored `.wav` file.  (Under further development)
 
 Together, these systems allow researchers to perform **field experiments** involving localisation, call analysis, and behavioural playback under natural foraging conditions.
 
@@ -33,7 +33,7 @@ More projects will be added as the systems are developed and tested. Check back 
 
 ### Batsy4-Pro
 
-- Records **up to 4 ultrasonic channels** at 192 kHz or higher.
+- Records **4 ultrasonic channels** at 192 kHz - extendable up to 8 analogue channels.
 - Uses **PSRAM buffering**.
 - Automatically generates unique WAV filenames.
 - Provides **tunable live bat monitoring via heterodyning** for informed recording. No more guessing or additional monitoring equipment. 
@@ -54,7 +54,7 @@ More projects will be added as the systems are developed and tested. Check back 
 - Play single-channel `.wav` from SD card - intended for testing and possible field experiments at any frequency band. Modify the `channels` variable to make it stereo-capable. 
 - Output may be piped via power amplifiers and desired speakers. 
 
-**[\* See the rotary encoder method in Batsy4-Pro for tunable carrier frequency.]** 
+**[\* See the rotary encoder method in Batsy4-Pro for tunable carrier frequency. A fully implemented version will be available soon]** 
 
 ---
 
@@ -133,7 +133,7 @@ See the `LICENSE` file for details.
 
 ## Disclaimer
 
-This code is provided **"as is"**, without warranty of any kind.  
+The code in this repository is provided **"as is"**, without warranty of any kind.  
 It is intended for **research and educational purposes only**.  
 Use in environments involving wildlife should comply with local regulations and ethical guidelines.
 
