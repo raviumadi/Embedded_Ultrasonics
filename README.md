@@ -56,6 +56,12 @@ More projects will be added as the systems are developed and tested. Check back 
 
 **[\* See the rotary encoder method in Batsy4-Pro for tunable carrier frequency. A fully implemented version will be available soon]** 
 
+### Remote Trigger
+
+- Batsy4-Pro may be combined with an ESP-NOW-based remote trigger. This simple yet effective module frees hands during field recordings. The system may be set up and monitored from a distance, and recordings may be remotely triggered. 
+- You will need two ESP32 dev kits -- sender and receiver.
+- I use an audio jack Bluetooth Plugin (e.g., [Avantree Relay](https://www.amazon.de/Avantree-Relay-Bluetooth-Headphones-Transmitter-black/dp/B0C3QQ4X6F/ref=sxin_15_pa_sp_search_thematic_sspa?content-id=amzn1.sym.91b38798-02f3-442f-871f-2fb966e28e5d%3Aamzn1.sym.91b38798-02f3-442f-871f-2fb966e28e5d&cv_ct_cx=airplay%2Badapter&keywords=airplay%2Badapter&pd_rd_i=B0C3QQ4X6F&pd_rd_r=ba66b95e-9919-4db9-867f-b0ac644b336e&pd_rd_w=Vdtpp&pd_rd_wg=jNmjS&pf_rd_p=91b38798-02f3-442f-871f-2fb966e28e5d&pf_rd_r=NBZ4DFX5T756JACNQE20&qid=1755449145&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D&sr=1-5-6e6ea531-5af4-4866-af75-1ef299d1c279-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9zZWFyY2hfdGhlbWF0aWM&th=1)) to hear the heterodyned audio over Bluetooth headphones. This allows me to not be close to the setup and still be able to perform recordings. The BT addition has a perceptible delay, about 100ms or so, but immaterial for recording experiments.
+
 ---
 
 ## Hardware Requirements
