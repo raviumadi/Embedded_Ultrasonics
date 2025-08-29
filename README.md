@@ -20,7 +20,7 @@ Together, these systems allow researchers to perform **field experiments** invol
 
 More projects will be added as the systems are developed and tested. Check back again.
 
-
+**See [Bat Reviewer](https://github.com/raviumadi/Bat-Reviewer.git) for a software tool for validating and sorting of field recordings from any of these devices, and to hear bat calls with heterodyne demodulation on the computer.**
 
 <p align="center">
   <img src="img/Batsy_Full.jpeg" alt="Batsy4Pro Recorder" width="45%">
