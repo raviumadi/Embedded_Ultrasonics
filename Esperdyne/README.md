@@ -8,6 +8,14 @@ A pocketable, real-time heterodyne bat-call listener and “tap-to-save” field
 
 ESPERDYNE is a high-fidelity, open-hardware/open-code bat detector for fieldwork and education. It provides **dual-channel heterodyne monitoring at 192 kHz**, an **on-device 5 s ring buffer in PSRAM**, and a **single-tap recording** to microSD in WAV format. It’s designed for reliability in the field and accessibility in budget-limited contexts.
 
+
+
+<p align="center">
+  <img src="../img/esperdyne.jpg" alt="ESPERDYNE Device" width="500"/>
+  <br/>
+  <em><strong>Figure:</strong>  The ESPERDYNE dual-channel heterodyne bat detector and recorder.</em>
+</p>
+
 ## **Key features**
 
 - **Dual I²S**: I2S0 input @ 192 kHz, I2S1 output @ 192 kHz.
@@ -30,7 +38,29 @@ ESPERDYNE is a high-fidelity, open-hardware/open-code bat detector for fieldwork
 - **Audio in:** I²S ADC/codec front-end (your hardware) → ESP32-S3 I2S0
 - **Audio out:** I²S DAC/amp front-end → ESP32-S3 I2S1
 
-
+<p align="center">
+  <img src="../img/esperdyne_components.jpeg" alt="ESPERDYNE Components" width="500"/>
+  <br/>
+  <em>
+    <strong>Figure:</strong> The components used in building the ESPERDYNE.<br><br>
+    <strong>1.</strong> 128×32 OLED Display, 
+    <strong>2.</strong> Perforated PCB, 
+    <strong>3.</strong> Tactile push buttons (for control), 
+    <strong>4.</strong> Power On/Off Switch, 
+    <strong>5.</strong> microSD card, 
+    <strong>6.</strong> SD Card Module, 
+    <strong>7.</strong> Knowles MEMS Microphones with leads (I²S input), 
+    <strong>8.</strong> WM8782 I²S ADC, 
+    <strong>9.</strong> ESP32-S3 main controller board with USB-C and PSRAM, 
+    <strong>10.</strong> Rotary encoder with push-button, 
+    <strong>11.</strong> PCM5102A stereo DAC breakout board, 
+    <strong>12.</strong> Set of brass hexnuts and screws for mounting, 
+    <strong>13.</strong> LiPo battery (1000 mAh), 
+    <strong>14.</strong> Terminal block for battery input, 
+    <strong>15.</strong> LiPo battery charging module (with protection), 
+    <strong>16.</strong> USB-C port for battery charging connection.
+  </em>
+</p>
 
 ### **Pinout (defaults in this sketch)**
 
@@ -110,10 +140,6 @@ XX     F    YY     ##   XX
 
 
 ### **Controls**
-
-
-
-
 
 - **Encoder rotate**: change **frequency** (F) or **volume** (V).
 - **Encoder press**: toggle F ↔ V.
