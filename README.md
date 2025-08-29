@@ -48,13 +48,20 @@ More projects will be added as the systems are developed and tested. Check back 
 - Supports Doppler-shift simulation for moving targets with synthesised CF calls. (Experimental feature for future development)
 - Currently developed for a single channel use - if that's all you need. This version is much cheaper than Teensy-based hardware. 
 
-### Esperdyne
+### **ESPERDYNE**
 
-- Live **Heterodyne* monitoring**
-- Play single-channel `.wav` from SD card - intended for testing and possible field experiments at any frequency band. Modify the `channels` variable to make it stereo-capable. 
-- Output may be piped via power amplifiers and desired speakers. 
+ESPERDYNE is a **dual-channel heterodyne bat detector and recorder** built on the ESP32-S3 with onboard PSRAM and SD storage. It enables **real-time listening and immediate capture** of ultrasonic signals in the field with an intuitive, low-power design.
 
-**[\* See the rotary encoder method in Batsy4-Pro for tunable carrier frequency. A fully implemented version will be available soon]** 
+- Live **dual-channel heterodyne monitoring** at **192 kHz sample rate**
+- Independent **tunable carrier frequency** per channel via rotary encoder (10–85 kHz range, 5 kHz steps)
+- **Stereo / Mix mode** toggle for flexible playback (true stereo or averaged mono)
+- **Tap-to-save recording** from a **5-second PSRAM ring buffer** to WAV on SD card (REC###.WAV)
+- **OLED UI (128×32)** displays carrier frequencies, volume, file index, and mode
+- **Rotary encoder** with push-switch to toggle between frequency and volume adjustment
+- **Dedicated buttons** for record, OLED toggle, channel 2 edit, and mix mode toggle
+- **Auto file indexing** on boot (no overwrite of existing recordings)
+
+This version supersedes the earlier proof-of-concept, integrating full **UI controls**, **PSRAM-backed ring buffer recording**, and **independent heterodyne channels** for scientific and educational use.
 
 ### Remote Trigger
 
