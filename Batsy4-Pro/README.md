@@ -86,7 +86,17 @@ See folder `field_recordings` for bat call sequences recorded using the Batsy4-P
 
 ## License
 
-This work is licensed under a [Creative Commons Attribution–NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/).
+### Hardware
+The hardware is licensed under the  
+**CERN Open Hardware Licence Version 2 – Strongly Reciprocal (CERN-OHL-S)**.
+
+### Software
+The firmware and software are licensed under the  
+**GNU General Public License v3.0 (GPL-3.0-only)**.
+
+### Documentation
+All documentation, including this README, build instructions, and figures, is licensed under the  
+**Creative Commons Attribution–ShareAlike 4.0 International (CC-BY-SA-4.0)**.
 
 ---
 

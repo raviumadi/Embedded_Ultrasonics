@@ -2,7 +2,7 @@
 
 A pocketable, real-time heterodyne bat-call listener and “tap-to-save” field recorder built on ESP32-S3.
 
-**Licence:** CC-BY-SA 4.0 • **Author:** Ravi Umadi • **Date:** August 2025
+**Licence:** See License file • **Author:** Ravi Umadi • **Date:** August 2025
 
 ## **What is ESPERDYNE?**
 
@@ -213,7 +213,21 @@ XX     F    YY     ##   XX
 Built as a derivative/companion tool to ongoing embedded ultrasonics work (e.g., BATSY4-Pro). Thanks to the open-source community (Espressif, Adafruit, billgreiman/SdFat) for superb libraries.
 
 ## License
-This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** license.
+
+### Hardware
+
+The hardware is licensed under the  
+**CERN Open Hardware Licence Version 2 – Strongly Reciprocal (CERN-OHL-S)**.
+
+### Software
+
+The firmware and software are licensed under the  
+**GNU General Public License v3.0 (GPL-3.0-only)**.
+
+### Documentation
+
+All documentation, including this README, build instructions, and figures, is licensed under the  
+**Creative Commons Attribution–ShareAlike 4.0 International (CC-BY-SA-4.0)**.
 
 ## Disclaimer
 This code is provided *“as is”* without warranty. You are responsible for verifying functionality and ensuring safe and legal operation, especially in field or wildlife applications.
