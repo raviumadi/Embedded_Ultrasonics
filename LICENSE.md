@@ -1,17 +1,31 @@
-## License
+## **License**
 
-This work is licensed under a  
-[Creative Commons Attribution–NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/).
+This project uses **different open licences for hardware, software, and documentation**, as detailed below.
 
-You are free to:
+### **Hardware**
 
-- **Share** — copy and redistribute the material in any medium or format
-- **Adapt** — remix, transform, and build upon the material
+The hardware design files, including schematics, wiring diagrams, PCB layouts, and mechanical designs, are licensed under the
 
-Under the following terms:
+**CERN Open Hardware Licence Version 2 – Strongly Reciprocal (CERN-OHL-S)**.
 
-- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made.  
-  You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-- **NonCommercial** — You may not use the material for commercial purposes.
+This licence allows use, modification, manufacture, and distribution of the hardware, provided that any derivative hardware designs are released under the same licence.
 
-No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+### **Software**
+
+The firmware and software associated with this project are licensed under the
+
+**GNU General Public License v3.0 (GPL-3.0-only)**.
+
+You are free to use, modify, and redistribute the software under the terms of this licence, provided that derivative works are also distributed under GPL-3.0-only.
+
+### **Documentation**
+
+All documentation, including this README, build instructions, figures, and explanatory text, is licensed under the
+
+**Creative Commons Attribution–ShareAlike 4.0 International (CC-BY-SA-4.0)**.
+
+You are free to share and adapt the documentation for any purpose, including commercial use, provided that appropriate credit is given and derivative works are distributed under the same licence.
+
+### **No Additional Restrictions**
+
+No additional legal or technological restrictions are applied beyond those specified by the respective licences above.
