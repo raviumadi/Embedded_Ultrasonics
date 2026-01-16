@@ -1,5 +1,7 @@
 # BATSY4-PRO (Teensy 4.x) – Ultrasonic Heterodyne + Rolling Pre-Record
 
+![](../img/oshwa_batsy.png)
+
 ## Overview
 
 **BATSY4-PRO** is a high-rate (192 kHz) ultrasonic audio capture and monitoring system built on **Teensy 4.x** with the **Teensy Audio Library** and an SSD1306 OLED UI.  

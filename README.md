@@ -31,13 +31,14 @@ More projects will be added as the systems are developed and tested. Check back 
 
 ## Features
 
-### Batsy4-Pro
+### Batsy4-Pro 
 
 - Records **4 ultrasonic channels** at 192 kHz - extendable up to 8 analogue channels.
 - Uses **PSRAM buffering**.
 - Automatically generates unique WAV filenames.
 - Provides **tunable live bat monitoring via heterodyning** for informed recording. No more guessing or additional monitoring equipment. 
 - Designed for synchronised microphone array recordings.
+- *[OSHW] DE000165 | Certified open source hardware | oshwa.org/cert*
 
 ### Espertillio
 
