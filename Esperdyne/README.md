@@ -2,6 +2,8 @@
 
 A pocketable, real-time heterodyne bat-call listener and “tap-to-save” field recorder built on ESP32-S3.
 
+![](../img/oshwa_esperdyne.png)
+
 **Licence:** See License file • **Author:** Ravi Umadi • **Date:** August 2025
 
 ## **What is ESPERDYNE?**

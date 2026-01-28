@@ -38,7 +38,7 @@ More projects will be added as the systems are developed and tested. Check back 
 - Automatically generates unique WAV filenames.
 - Provides **tunable live bat monitoring via heterodyning** for informed recording. No more guessing or additional monitoring equipment. 
 - Designed for synchronised microphone array recordings.
-- *[OSHW] DE000165 | Certified open source hardware | oshwa.org/cert*
+- *[OSHW] DE000165 | Certified open source hardware | oshwa.org](https://certification.oshwa.org/de000165.html)*
 
 ### Espertillio
 
@@ -61,6 +61,7 @@ ESPERDYNE is a **dual-channel heterodyne bat detector and recorder** built on th
 - **Rotary encoder** with push-switch to toggle between frequency and volume adjustment
 - **Dedicated buttons** for record, OLED toggle, channel 2 edit, and mix mode toggle
 - **Auto file indexing** on boot (no overwrite of existing recordings)
+- [OSHW] | DE000166 | Certified open source hardware |  [oshwa.org](https://certification.oshwa.org/de000166.html)
 
 This version supersedes the earlier proof-of-concept, integrating full **UI controls**, **PSRAM-backed ring buffer recording**, and **independent heterodyne channels** for scientific and educational use.
 
