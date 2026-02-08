@@ -233,3 +233,32 @@ All documentation, including this README, build instructions, and figures, is li
 
 ## Disclaimer
 This code is provided *“as is”* without warranty. You are responsible for verifying functionality and ensuring safe and legal operation, especially in field or wildlife applications.
+
+<hr>
+<h2>☕ Support my open science projects</h2>
+
+
+<p>
+This project is developed and maintained independently as part of my open research work.
+If you find it useful and would like to support continued development, documentation,
+and free public releases, consider buying me a coffee.
+</p>
+<p>
+<a href="https://buymeacoffee.com/raviumadi"
+   target="_blank"
+   style="
+     display: inline-block;
+     padding: 10px 16px;
+     background-color: #FFDD00;
+     color: #000;
+     font-weight: 600;
+     border-radius: 6px;
+     text-decoration: none;
+     border: 1px solid #e6c800;
+   ">
+  ☕ Buy me a coffee
+</a>
+</p>
+
+<p><em>All tools remain free for academic and research use.</em></p>
+
