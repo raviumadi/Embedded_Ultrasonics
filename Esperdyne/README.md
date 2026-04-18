@@ -51,7 +51,7 @@ ESPERDYNE is a high-fidelity, open-hardware/open-code bat detector for fieldwork
     <strong>4.</strong> Power On/Off Switch, 
     <strong>5.</strong> microSD card, 
     <strong>6.</strong> SD Card Module, 
-    <strong>7.</strong> Knowles MEMS Microphones with leads (I²S input), 
+    <strong>7.</strong> Knowles MEMS Microphones with leads (I²S ADC input), 
     <strong>8.</strong> WM8782 I²S ADC, 
     <strong>9.</strong> ESP32-S3 main controller board with USB-C and PSRAM, 
     <strong>10.</strong> Rotary encoder with push-button, 
@@ -63,6 +63,7 @@ ESPERDYNE is a high-fidelity, open-hardware/open-code bat detector for fieldwork
     <strong>16.</strong> USB-C port for battery charging connection.
   </em>
 </p>
+
 
 ### **Pinout (defaults in this sketch)**
 
