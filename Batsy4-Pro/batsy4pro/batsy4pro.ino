@@ -3,7 +3,24 @@
 Project: BATSY4-PRO (Teensy 4.x) – Ultrasonic Heterodyne + Rolling Pre-Record
 Author : Ravi Umadi
 Target : Teensy 4.0 / 4.1 + Teensy Audio Library + SSD1306 OLED
-Date   : 2025-08-07
+Version: 1.1.0
+Date   : 2026-09-16
+
+WHAT IS NEW IN VERSION 1.1.0
+----------------------------
+- Redesigned 128 x 64 OLED interface with separate CARRIER, CH, and VOLUME
+  sections. The currently selected control is highlighted.
+- The rotary pushbutton cycles through CARRIER -> CH -> VOLUME; rotating the
+  encoder adjusts the highlighted parameter.
+- Heterodyne monitoring input can now be selected directly from channels 1--4.
+  This selection affects only the audible monitoring path; all four raw input
+  channels continue to be recorded unchanged.
+- The next available recording number is read from the SD card at startup and
+  shown on the main screen.
+- Recording and saved-status screens show the WAV filename. The saved status
+  remains visible for two seconds without pausing audio queue servicing.
+- The startup splash completes before audio acquisition begins, ensuring that
+  the rolling buffer starts from a clean and continuous acquisition point.
 
 OVERVIEW
 --------
@@ -11,7 +28,7 @@ This sketch implements a high-rate (192 kHz) audio pipeline for ultrasonic work
 (e.g., bat acoustics) with:
 
   1) Live heterodyne monitoring
-     - Left input channel is multiplied by a local oscillator (carrier) to
+     - A user-selected input channel is multiplied by a local oscillator (carrier) to
        shift ultrasonic content down to audible.
      - Output gain is user-adjustable.
 
@@ -23,16 +40,20 @@ This sketch implements a high-rate (192 kHz) audio pipeline for ultrasonic work
      - HOLD button: save 5 s “pre” + up to 10 s “post”. Customisable
 
   4) On-device UI
-     - 128×64 SSD1306 OLED shows carrier frequency, output volume, and mode.
-     - Rotary encoder edits parameters; push to switch between FREQ and VOL.
+     - 128×64 SSD1306 OLED shows carrier frequency, heterodyne input channel,
+       output volume, selected control, and the next recording number.
+     - Rotary push selects CARRIER, CH, or VOLUME; rotation changes the
+       highlighted value.
 
 WHAT THE KNOBS & BUTTONS DO
 ---------------------------
 - Rotary Encoder (pins 36=A, 37=B, 38=SW)
-  • Press (SW): toggle edit mode → FREQ or VOL.
+  • Press (SW): cycle selection → CARRIER, CH, or VOLUME.
   • Rotate:
-      - In FREQ mode: carrier changes in ±5 kHz steps (10–85 kHz limits).
-      - In VOL  mode: output gain changes in ±5% steps (0–100%).
+      - With CARRIER selected: frequency changes in ±5 kHz steps
+        (10–85 kHz limits).
+      - With CH selected: monitored input cycles through channels 1–4.
+      - With VOLUME selected: output gain changes in ±5% steps (0–100%).
   • If rotation direction feels reversed, see comment in `loop()` to flip.
 
 - TAP button (pin 41)
@@ -47,14 +68,14 @@ SIGNAL FLOW (high level)
 I2S In (2x stereo = 4 channels)
    → AudioRecordQueue (L1,R1,L2,R2)
    → Copy to EXTMEM ring buffer (interleaved int16)
-   → Heterodyne: out[n] = ch1[n] * sin(phase) * outGain
+   → Heterodyne: out[n] = selectedChannel[n] * sin(phase) * outGain
    → AudioPlayQueue → I2S Out L/R (mirrored mono)
 
 HETERODYNE DETAILS
 ------------------
 - `carrierFreq` (Hz) sets oscillator frequency (default 45 kHz).
 - `phaseIncrement = 2π * carrierFreq / sampleRate`.
-- Only ch1 (queueL1) is mixed to produce the audible output stream.
+- The channel selected in HET CH mode is mixed to produce the audible output stream.
 - Output volume is scaled by `outGain` (0.0–1.0) and hard-limited to int16.
 - Use a powered headphone to raise volume further.
 
@@ -74,8 +95,10 @@ STORAGE FORMAT
 OLED UI (SSD1306 @ 0x3C)
 ------------------------
 - Always shows:
-    CARR: (kHz)   VOL: (%)   MODE: FREQ|VOL
-- Updates instantly after edits or capture actions.
+    CARRIER (kHz)   CH (1--4)   VOLUME (%)
+    NEXT REC: #nnn
+- The selected section is highlighted and updates immediately after encoder
+  input. Recording and saved screens include the current WAV filename.
 
 ENCODER IMPLEMENTATION (reliable on pins 36/37/38)
 --------------------------------------------------
@@ -109,7 +132,7 @@ PERFORMANCE NOTES
 - Ring buffer lives in EXTMEM (PSRAM) — fast enough for 192 kHz × 4 ch.
 - SD writes are chunked during capture; long forward records rely on the
   loop keeping up with I/O. Fast SD media recommended.
-- The output path is mono (duplicated to L/R), derived only from ch1. You can select the channel in processing loop function.
+- The output path is mono (duplicated to L/R), derived from the selected input channel.
 - `totalSamplesWritten` tracks readiness for the 5 s pre-buffer logic.
 
 LIMITATIONS / GOTCHAS
@@ -117,8 +140,8 @@ LIMITATIONS / GOTCHAS
 - No antialias or band-limit filtering on the heterodyne product; The audio output is quite clean and no hissing noise is present. But if you amplifiy the analogue signal, additional bandpass may be necessary to keep the audio clean.
 - The encoder is polled; if UI misses steps under extreme SD loads, reduce
   `TICKS_PER_DETENT`, increase UI update rate, or add a dedicated task.
-- The four recorded channels are raw as-captured; only ch1 is processed to
-  audio output in this example.
+- The four recorded channels are raw as-captured; the selected channel is processed
+  for the monitoring output.
 
 TROUBLESHOOTING
 ---------------
@@ -159,6 +182,9 @@ This work is licensed under a
 #include <Bounce.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSerif9pt7b.h>
+#include <Fonts/FreeSerifItalic9pt7b.h>
 
 #undef AUDIO_SAMPLE_RATE_EXACT
 #define AUDIO_SAMPLE_RATE_EXACT 192000.0f
@@ -189,8 +215,9 @@ uint8_t encLastState = 0;         // last 2-bit AB state
 const int TICKS_PER_DETENT = 4;   // adjust to 2 if your encoder is 2/transitions-detent
 
 // Editable parameters via encoder
-enum EditMode { EDIT_FREQ = 0, EDIT_VOL = 1 };
+enum EditMode { EDIT_FREQ = 0, EDIT_VOL = 1, EDIT_HET_CH = 2 };
 EditMode editMode = EDIT_FREQ;
+uint8_t heterodyneChannel = 1;
 
 const float FREQ_MIN   = 10000.0f;
 const float FREQ_MAX   = 85000.0f;
@@ -221,6 +248,8 @@ File file;
 uint32_t sampleCount = 0;
 int fileIndex = 0;
 const char *TEMP_FILENAME = "/TEMP.WAV";
+bool savedStatusActive = false;
+uint32_t savedStatusUntil = 0;
 
 // --- Teensy Audio objects ---
 AudioInputI2S   i2sInput1;
@@ -247,6 +276,38 @@ void setI2SFreqBoth(int freq) {
   set_audioClock(c0, c1, c2, true);
   CCM_CS1CDR = (CCM_CS1CDR & ~(CCM_CS1CDR_SAI1_CLK_PRED_MASK | CCM_CS1CDR_SAI1_CLK_PODF_MASK)) | CCM_CS1CDR_SAI1_CLK_PRED(n1 - 1) | CCM_CS1CDR_SAI1_CLK_PODF(n2 - 1);
   CCM_CS2CDR = (CCM_CS2CDR & ~(CCM_CS2CDR_SAI2_CLK_PRED_MASK | CCM_CS2CDR_SAI2_CLK_PODF_MASK)) | CCM_CS2CDR_SAI2_CLK_PRED(n1 - 1) | CCM_CS2CDR_SAI2_CLK_PODF(n2 - 1);
+}
+
+void flushAudioQueues() {
+  for (int k = 0; k < 100; k++) {
+    while (queueL1.available()) queueL1.clear();
+    while (queueR1.available()) queueR1.clear();
+    while (queueL2.available()) queueL2.clear();
+    while (queueR2.available()) queueR2.clear();
+    delay(2);
+  }
+}
+
+void setupAudioClean() {
+  AudioMemory(120);
+
+  AudioNoInterrupts();
+  setI2SFreqBoth(sampleRate);
+
+  queueL1.begin();
+  queueR1.begin();
+  queueL2.begin();
+  queueR2.begin();
+
+  AudioInterrupts();
+
+  delay(500);
+  flushAudioQueues();
+
+  AudioNoInterrupts();
+  ringWriteIndex = 0;
+  totalSamplesWritten = 0;
+  AudioInterrupts();
 }
 
 // ---------- WAV helpers ----------
@@ -281,6 +342,25 @@ String getNextFilename() {
   }
 }
 
+String peekNextFilename() {
+  char filename[20];
+  int candidateIndex = fileIndex;
+  while (true) {
+    snprintf(filename, sizeof(filename), "/BAT%03d.WAV", candidateIndex++);
+    if (!SD.exists(filename)) return String(filename);
+  }
+}
+
+void syncFileIndexFromSD() {
+  char filename[20];
+  fileIndex = 0;
+  while (true) {
+    snprintf(filename, sizeof(filename), "/BAT%03d.WAV", fileIndex);
+    if (!SD.exists(filename)) break;
+    fileIndex++;
+  }
+}
+
 void startNewRecording() {
   sampleCount = 0;
   file = SD.open(TEMP_FILENAME, FILE_WRITE);
@@ -289,7 +369,7 @@ void startNewRecording() {
   file.flush();
 }
 
-void closeWavFile() {
+String closeWavFile() {
   file.seek(0);
   writeWavHeader(file, sampleRate, sampleCount);
   file.close();
@@ -297,6 +377,7 @@ void closeWavFile() {
   SD.rename(TEMP_FILENAME, newFilename.c_str());
   Serial.print("\xF0\x9F\x93\x81 Saved recording: ");
   Serial.println(newFilename);
+  return newFilename;
 }
 
 void saveLastNSecondsFromRingBuffer(File &file, int seconds) {
@@ -309,31 +390,161 @@ void saveLastNSecondsFromRingBuffer(File &file, int seconds) {
   }
 }
 
+// ---------- OLED interface ----------
+// Visual language follows Esperdyne, adapted from 128x32 to Batsy's 128x64 OLED.
+void drawCenteredText(const char *text, int16_t y) {
+  int16_t x1, y1;
+  uint16_t w, h;
+  display.getTextBounds(text, 0, y, &x1, &y1, &w, &h);
+  display.setCursor((SCREEN_WIDTH - (int16_t)w) / 2 - x1, y);
+  display.print(text);
+}
+
+void drawCenteredInColumn(const char *text, int16_t left, int16_t width, int16_t y) {
+  int16_t x1, y1;
+  uint16_t w, h;
+  display.getTextBounds(text, 0, y, &x1, &y1, &w, &h);
+  display.setCursor(left + (width - (int16_t)w) / 2 - x1, y);
+  display.print(text);
+}
+
+void drawLargeValueWithUnit(const char *value, const char *unit,
+                            int16_t left, int16_t width, int16_t baseline) {
+  int16_t valueX1, valueY1;
+  uint16_t valueWidth, valueHeight;
+
+  display.setFont(&FreeSans9pt7b);
+  display.getTextBounds(value, 0, baseline,
+                        &valueX1, &valueY1, &valueWidth, &valueHeight);
+
+  display.setFont();
+  display.setTextSize(1);
+  int16_t unitX1, unitY1;
+  uint16_t unitWidth, unitHeight;
+  display.getTextBounds(unit, 0, baseline - 8,
+                        &unitX1, &unitY1, &unitWidth, &unitHeight);
+
+  const int16_t gap = unit[0] == '\0' ? 0 : 2;
+  const int16_t groupWidth = (int16_t)valueWidth + gap + (int16_t)unitWidth;
+  const int16_t groupLeft = left + (width - groupWidth) / 2;
+
+  display.setFont(&FreeSans9pt7b);
+  display.setCursor(groupLeft - valueX1, baseline);
+  display.print(value);
+
+  if (unit[0] != '\0') {
+    display.setFont();
+    display.setTextSize(1);
+    display.setCursor(groupLeft + valueWidth + gap - unitX1, baseline - 8);
+    display.print(unit);
+  }
+}
+
+void drawSelectableSectionTitle(const char *title, int16_t left, int16_t width,
+                                bool selected) {
+  display.setFont();
+  display.setTextSize(1);
+  if (selected) {
+    display.fillRect(left + 1, 12, width - 2, 10, SSD1306_WHITE);
+    display.setTextColor(SSD1306_BLACK);
+  } else {
+    display.setTextColor(SSD1306_WHITE);
+  }
+  drawCenteredInColumn(title, left, width, 14);
+  display.setTextColor(SSD1306_WHITE);
+}
+
+void drawStatusScreen(const char *status, const char *detail) {
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+  display.setFont();
+  display.setTextSize(1);
+  drawCenteredText("BATSY4-PRO", 1);
+  display.drawFastHLine(0, 11, SCREEN_WIDTH, SSD1306_WHITE);
+
+  display.setFont(&FreeSans9pt7b);
+  drawCenteredText(status, 37);
+
+  display.setFont();
+  display.setTextSize(1);
+  drawCenteredText(detail, 49);
+  display.display();
+}
+
+void splashScreen() {
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+
+  display.setFont(&FreeSerif9pt7b);
+  drawCenteredText("BATSY4-PRO", 24);
+
+  display.setFont(&FreeSerifItalic9pt7b);
+  drawCenteredText("Ravi Umadi", 44);
+
+  display.setFont();
+  display.setTextSize(1);
+  drawCenteredText("4-CHANNEL | 192 kHz", 54);
+  display.display();
+  delay(2000);
+}
+
+void drawUI() {
+  char carrierText[12];
+  char volumeText[12];
+  char channelText[4];
+  char fileText[12];
+  snprintf(carrierText, sizeof(carrierText), "%d", (int)(carrierFreq / 1000.0f));
+  snprintf(volumeText, sizeof(volumeText), "%d", (int)(outGain * 100.0f));
+  snprintf(channelText, sizeof(channelText), "%u", heterodyneChannel);
+  snprintf(fileText, sizeof(fileText), "#%03d", fileIndex);
+
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+  display.setFont();
+  display.setTextSize(1);
+  drawCenteredText("BATSY4-PRO", 1);
+  display.drawFastHLine(0, 11, SCREEN_WIDTH, SSD1306_WHITE);
+
+  drawSelectableSectionTitle("CARRIER", 0, 43, editMode == EDIT_FREQ);
+  drawSelectableSectionTitle("CH", 43, 42, editMode == EDIT_HET_CH);
+  drawSelectableSectionTitle("VOLUME", 85, 43, editMode == EDIT_VOL);
+
+  drawLargeValueWithUnit(carrierText, "kHz", 0, 43, 40);
+  drawLargeValueWithUnit(channelText, "", 43, 42, 40);
+  drawLargeValueWithUnit(volumeText, "%", 85, 43, 40);
+
+  display.drawFastVLine(43, 12, 33, SSD1306_WHITE);
+  display.drawFastVLine(85, 12, 33, SSD1306_WHITE);
+  display.drawFastHLine(0, 45, SCREEN_WIDTH, SSD1306_WHITE);
+
+  char nextRecordingText[24];
+  snprintf(nextRecordingText, sizeof(nextRecordingText), "NEXT REC: %s", fileText);
+  display.setFont();
+  display.setTextSize(1);
+  drawCenteredText(nextRecordingText, 52);
+  display.display();
+}
+
+void showSavedStatus(const String &filename) {
+  drawStatusScreen("SAVED", filename.c_str());
+  savedStatusActive = true;
+  savedStatusUntil = millis() + 2000UL;
+}
+
+void serviceSavedStatus() {
+  if (savedStatusActive && (int32_t)(millis() - savedStatusUntil) >= 0) {
+    savedStatusActive = false;
+    drawUI();
+  }
+}
+
 void dumpRingBufferToSD() {
+  String targetFilename = peekNextFilename();
+  drawStatusScreen("SAVING", targetFilename.c_str());
   startNewRecording();
   saveLastNSecondsFromRingBuffer(file, 5);
-  closeWavFile();
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("Saved 5s ring!");
-  display.display();
-  delay(1500);
-  // Refresh UI
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("BATSY-4-PRO Ready!");
-  display.setCursor(0, 16);
-  display.print("CARR: ");
-  display.print(carrierFreq / 1000.0, 1);
-  display.println(" kHz");
-  display.setCursor(0, 26);
-  display.print("VOL : ");
-  display.print((int)(outGain * 100));
-  display.println(" %");
-  display.setCursor(0, 42);
-  display.print("MODE: ");
-  display.println(editMode == EDIT_FREQ ? "FREQ" : "VOL");
-  display.display();
+  String savedFilename = closeWavFile();
+  showSavedStatus(savedFilename);
 
   Serial.print("\xE2\x9C\x85 Dumped ring buffer: ");
   Serial.println(sampleCount);
@@ -360,7 +571,15 @@ void readAndProcessAudio() {
       phase += phaseIncrement;
       if (phase >= twoPi) phase -= twoPi;
 
-      float mixed = (float)ch1[i] * carrier * outGain;
+      int16_t inputSample;
+      switch (heterodyneChannel) {
+        case 2:  inputSample = ch2[i]; break;
+        case 3:  inputSample = ch3[i]; break;
+        case 4:  inputSample = ch4[i]; break;
+        default: inputSample = ch1[i]; break;
+      }
+
+      float mixed = (float)inputSample * carrier * outGain;
       if (mixed > 32767.f) mixed = 32767.f;
       if (mixed < -32768.f) mixed = -32768.f;
       tempOut[i] = (int16_t)mixed;
@@ -382,25 +601,6 @@ void readAndProcessAudio() {
   }
 }
 
-// ---------- UI helper ----------
-void drawUI() {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("BATSY-4-PRO Ready!");
-  display.setCursor(0, 16);
-  display.print("CARR: ");
-  display.print(carrierFreq / 1000.0, 1);
-  display.println(" kHz");
-  display.setCursor(0, 26);
-  display.print("VOL : ");
-  display.print((int)(outGain * 100));
-  display.println(" %");
-  display.setCursor(0, 42);
-  display.print("MODE: ");
-  display.println(editMode == EDIT_FREQ ? "FREQ" : "VOL");
-  display.display();
-}
-
 // ---------- Apply encoder steps ----------
 void applyEncoderSteps(int detents) {
   if (detents == 0) return;
@@ -415,7 +615,7 @@ void applyEncoderSteps(int detents) {
     Serial.print(carrierFreq);
     Serial.print(" Hz, phaseInc: ");
     Serial.println(phaseIncrement, 8);
-  } else {
+  } else if (editMode == EDIT_VOL) {
     outGain += detents * VOL_STEP;
     if (outGain < VOL_MIN) outGain = VOL_MIN;
     if (outGain > VOL_MAX) outGain = VOL_MAX;
@@ -423,8 +623,16 @@ void applyEncoderSteps(int detents) {
     Serial.print("Output Volume: ");
     Serial.print(outGain * 100.0f, 0);
     Serial.println("%");
+  } else {
+    int nextChannel = (int)heterodyneChannel - 1 + detents;
+    nextChannel %= numChannels;
+    if (nextChannel < 0) nextChannel += numChannels;
+    heterodyneChannel = (uint8_t)(nextChannel + 1);
+
+    Serial.print("Heterodyne Input Channel: ");
+    Serial.println(heterodyneChannel);
   }
-  drawUI();
+  if (!savedStatusActive) drawUI();
 }
 
 void setup() {
@@ -456,24 +664,20 @@ void setup() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  drawUI();
 
-  // Audio setup
-  AudioMemory(120);
-  setI2SFreqBoth(sampleRate);
-  queueL1.begin(); queueR1.begin();
-  queueL2.begin(); queueR2.begin();
-  delay(100);
+  // Complete the timed splash before acquisition starts, so the audio queues
+  // and rolling buffer begin from a clean, continuous point in time.
+  splashScreen();
+  setupAudioClean();
 
   // SD
   if (!SD.begin(BUILTIN_SDCARD)) {
     Serial.println("\xE2\x9D\x8C SD card init failed");
-    display.clearDisplay();
-    display.setCursor(0, 0);
-    display.println("SD Failed!");
-    display.display();
+    drawStatusScreen("SD ERROR", "Check microSD card");
     return;
   }
+  syncFileIndexFromSD();
+  drawUI();
   Serial.println("\xE2\x8F\xBA Ring buffer active");
 }
 
@@ -514,13 +718,20 @@ void loop() {
     }
   }
 
-  // Encoder push: toggle mode (FREQ <-> VOL)
+  // Encoder push: cycle selection (CARRIER -> CH -> VOLUME)
   if (rotSW.fallingEdge()) {
-    editMode = (editMode == EDIT_FREQ) ? EDIT_VOL : EDIT_FREQ;
-    drawUI();
+    if (editMode == EDIT_FREQ) {
+      editMode = EDIT_HET_CH;
+    } else if (editMode == EDIT_HET_CH) {
+      editMode = EDIT_VOL;
+    } else {
+      editMode = EDIT_FREQ;
+    }
+    if (!savedStatusActive) drawUI();
   }
 
   readAndProcessAudio();
+  serviceSavedStatus();
 
   // TAP → Save last 5 seconds
   if (buttonTap.fallingEdge()) {
@@ -529,10 +740,8 @@ void loop() {
 
   // HOLD → Save 5s buffer + 10s forward
   if (buttonHold.fallingEdge()) {
-    display.clearDisplay();
-    display.setCursor(0, 0);
-    display.print("Recording...");
-    display.display();
+    String targetFilename = peekNextFilename();
+    drawStatusScreen("RECORDING", targetFilename.c_str());
 
     const uint32_t minRequiredSamples = sampleRate * numChannels * 5;
 
@@ -613,19 +822,14 @@ void loop() {
       readPtr = (readPtr + 1) % ringBufferSamples;
     }
 
-    closeWavFile();
+    String savedFilename = closeWavFile();
     queueL1.clear(); queueR1.clear();
     queueL2.clear(); queueR2.clear();
     noInterrupts();
     totalSamplesWritten = 0;
     interrupts();
 
-    display.clearDisplay();
-    display.setCursor(0, 0);
-    display.println("Saved");
-    display.display();
-    delay(2000);
-    drawUI();
+    showSavedStatus(savedFilename);
 
     Serial.print("Total samples per channel: ");
     Serial.println(sampleCount);

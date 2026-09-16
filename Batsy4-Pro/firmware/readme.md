@@ -1,6 +1,6 @@
 # Batsy4-Pro Firmware Upload
 
-This folder contains a **precompiled firmware binary** for the Batsy4-Pro ultrasonic recorder, built for the **Teensy 4.1** microcontroller.  
+This folder contains the **Batsy4-Pro firmware version 1.1.0** precompiled for the **Teensy 4.1** microcontroller.  
 Uploading this firmware does **not** require the Arduino IDE or source code.
 
 ## Requirements

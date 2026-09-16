@@ -4,11 +4,13 @@
 
 ## Overview
 
-This repository contains the Arduino/ESP32 source code supporting the manuscript 
+This repository contains firmware and supporting material for a family of
+open-source ultrasonic recording and monitoring systems, including the system
+described in:
 
-**"[Embedded Ultrasonics: A Microcontroller-Based Multichannel Ultrasound Recorder for Behavioural Field Studies](https://www.biorxiv.org/content/10.1101/2025.08.11.669530v1)"**
+**"[Batsy4-Pro: An Open-Source Multichannel Ultrasound Recorder for Field Bioacoustics](https://doi.org/10.1101/2025.08.11.669530)"**
 
-Preprint Available on BioRxiv at: [ https://doi.org/10.1101/2025.08.11.669530](https://www.biorxiv.org/content/10.1101/2025.08.11.669530v1)
+Preprint: [https://doi.org/10.1101/2025.08.11.669530](https://doi.org/10.1101/2025.08.11.669530)
 
 Currently, it includes the following complementary systems:  
 
@@ -23,7 +25,7 @@ More projects will be added as the systems are developed and tested. Check back 
 **See [Bat Reviewer](https://github.com/raviumadi/Bat-Reviewer.git) for a software tool for validating and sorting of field recordings from any of these devices, and to hear bat calls with heterodyne demodulation on the computer.**
 
 <p align="center">
-  <img src="img/Batsy_Full.jpeg" alt="Batsy4Pro Recorder" width="45%">
+  <img src="img/batsy4-pro.png" alt="Batsy4-Pro multichannel ultrasonic recorder" width="45%">
   <img src="img/Field_Array.jpeg" alt="ESP32_HRP Device" width="45%">
 </p>
 
@@ -33,10 +35,13 @@ More projects will be added as the systems are developed and tested. Check back 
 
 ### Batsy4-Pro 
 
+- Current firmware: **version 1.1.0**.
 - Records **4 ultrasonic channels** at 192 kHz - extendable up to 8 analogue channels.
-- Uses **PSRAM buffering**.
-- Automatically generates unique WAV filenames.
-- Provides **tunable live bat monitoring via heterodyning** for informed recording. No more guessing or additional monitoring equipment. 
+- Uses a **5-second PSRAM ring buffer** for retrospective capture.
+- Automatically indexes WAV filenames from the SD card at startup.
+- Provides **tunable live bat monitoring via heterodyning**, with monitoring input selectable from channels 1-4 without altering the four-channel recording.
+- Uses a redesigned 128 x 64 OLED interface with highlighted **CARRIER**, **CH**, and **VOLUME** controls selected sequentially using the rotary pushbutton.
+- Displays the next recording number and the active filename during recording and saving.
 - Designed for synchronised microphone array recordings.
 - *[OSHW] DE000165 | Certified open source hardware | oshwa.org](https://certification.oshwa.org/de000165.html)*
 
@@ -75,7 +80,7 @@ This version supersedes the earlier proof-of-concept, integrating full **UI cont
 
 ## Hardware Requirements
 
-### Batsy4Pro
+### Batsy4-Pro
 
 - Teensy 4.1 microcontroller.
 - Multiple ultrasonic microphones (e.g., Knowles MEMS series).
@@ -123,7 +128,7 @@ This version supersedes the earlier proof-of-concept, integrating full **UI cont
 - All recordings are saved as **16-bit PCM WAV**.
 - Filenames are automatically generated in the format:  
   - `REC###.WAV` for ESP32 recordings.
-  - `BAT###.WAV` for Batsy4Pro recordings.
+  - `BAT###.WAV` for Batsy4-Pro recordings.
 - Sampling rate: **192,000 Hz** (configurable in code).
 
 ---
@@ -183,4 +188,3 @@ and free public releases, consider buying me a coffee.
 </p>
 
 <p><em>All tools remain free for academic and research use.</em></p>
-
