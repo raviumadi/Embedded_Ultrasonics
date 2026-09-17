@@ -9,7 +9,7 @@
 ## Overview
 
 **BATSY4-PRO** is a high-rate (192 kHz) ultrasonic audio capture and monitoring system built on **Teensy 4.x** with the **Teensy Audio Library** and an SSD1306 OLED UI.  
-It combines live heterodyne monitoring, a rolling 5-second multi-channel ring buffer, and one-touch SD capture.
+It combines selectable heterodyne or direct passthrough monitoring, a rolling 5-second multichannel ring buffer, and one-touch SD capture.
 
 The current firmware is **version 1.1.0**.
 
@@ -19,10 +19,11 @@ Originally designed for bat acoustics work, this code can be adapted for other u
 
 ## Features
 
-- **Live Heterodyne Monitoring**
-  - Converts the selected ultrasonic input channel to audible output using a carrier oscillator.
-  - Monitoring input is selectable from channels 1-4 without altering the four-channel recording.
-  - Adjustable carrier frequency (10–85 kHz).
+- **Flexible Live Monitoring**
+  - Converts ultrasonic input to audible output using an adjustable heterodyne carrier from 10–85 kHz.
+  - Provides a **PT** mode immediately beyond either carrier-frequency limit for direct passthrough without frequency conversion.
+  - Selects an individual monitoring input from Channels 1–4 or **MX**, which sums all four inputs before output processing.
+  - Applies channel selection, MX, PT, and volume only to the mono DAC/headphone output; all four recorded channels remain unchanged.
   - Adjustable output gain (0–100%).
 
 - **Rolling 5-Second, 4-Channel Ring Buffer**
@@ -36,9 +37,11 @@ Originally designed for bat acoustics work, this code can be adapted for other u
 - **OLED User Interface**
   - Separate **CARRIER**, **CH**, and **VOLUME** sections use a clear highlighted selection state.
   - Pressing the rotary encoder cycles through the three controls; rotation adjusts the selected value.
+  - Displays `PT` for passthrough and `MX` for the four-channel monitoring mix.
   - Displays the next available WAV number after checking the SD card at startup.
   - Recording and saved screens show the corresponding filename.
   - The saved confirmation remains visible for two seconds without pausing audio queue servicing.
+  - The startup splash screen displays firmware version 1.1.0.
 
 ---
 
@@ -47,7 +50,7 @@ Originally designed for bat acoustics work, this code can be adapted for other u
 | Control                   | Function                                                     |
 | ------------------------- | ------------------------------------------------------------ |
 | **Rotary Encoder (SW)**   | Cycle through **CARRIER**, **CH**, and **VOLUME**.            |
-| **Rotary Encoder Rotate** | Adjust the currently highlighted control.                    |
+| **Rotary Encoder Rotate** | Adjust the highlighted control. CARRIER spans `PT`, 10–85 kHz, and `PT`; CH cycles through 1–4 and `MX`. |
 | **Tap Button**            | Save last 5 seconds from buffer.                             |
 | **Hold Button**           | Save 5 seconds pre-buffer + live forward capture (up to 10 seconds). |
 
@@ -72,7 +75,7 @@ Originally designed for bat acoustics work, this code can be adapted for other u
 
 - **WAV** — 16-bit PCM, 4 channels interleaved, 192000 Hz.
 - Temporary file: `/TEMP.WAV` (renamed on close).
-- The selected monitoring channel is used only for heterodyne playback; all four raw channels are recorded.
+- Channel 1 is the default monitoring input at startup. Channels 1–4 and MX affect only live monitoring; all four raw channels are recorded.
 
 ---
 
@@ -87,7 +90,8 @@ Originally designed for bat acoustics work, this code can be adapted for other u
 ## Limitations
 
 - No digital filtering on heterodyne output — add LPF if needed.
-- Output is mono (duplicated to L/R), derived from the selected monitoring channel.
+- Output is mono (duplicated to L/R), derived from the selected channel or the summed MX signal.
+- Strong, correlated signals in MX mode may reach the output limiter; reduce the volume setting when necessary.
 - Encoder is polled, so rapid spins during SD writes may miss steps.
 
 ---

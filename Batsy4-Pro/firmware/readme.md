@@ -25,3 +25,6 @@ When the upload is complete, the Teensy will reboot and the firmware will start 
 - These binaries were compiled specifically for **Teensy 4.1**.
 - No compilation or configuration is required for standard operation.
 - Source code, documentation, and advanced build instructions are available in the main repository.
+- Version 1.1.0 provides selectable monitoring from Channels 1–4 or their summed **MX** signal.
+- Monitoring can use a 10–85 kHz heterodyne carrier or direct **PT** passthrough; neither setting changes the four-channel WAV recording.
+- The startup splash screen displays the installed firmware version.

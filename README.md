@@ -39,9 +39,10 @@ More projects will be added as the systems are developed and tested. Check back 
 - Records **4 ultrasonic channels** at 192 kHz - extendable up to 8 analogue channels.
 - Uses a **5-second PSRAM ring buffer** for retrospective capture.
 - Automatically indexes WAV filenames from the SD card at startup.
-- Provides **tunable live bat monitoring via heterodyning**, with monitoring input selectable from channels 1-4 without altering the four-channel recording.
+- Provides **tunable heterodyne monitoring** from 10–85 kHz and a direct **PT passthrough mode** for audible-frequency monitoring without frequency conversion.
+- Monitoring input is selectable from Channels 1–4 or **MX**, which sums all four inputs, without altering the four-channel recording.
 - Uses a redesigned 128 x 64 OLED interface with highlighted **CARRIER**, **CH**, and **VOLUME** controls selected sequentially using the rotary pushbutton.
-- Displays the next recording number and the active filename during recording and saving.
+- Displays `PT` and `MX` when selected, the next recording number, the active filename during recording and saving, and the firmware version on the startup splash screen.
 - Designed for synchronised microphone array recordings.
 - *[OSHW] DE000165 | Certified open source hardware | oshwa.org](https://certification.oshwa.org/de000165.html)*
 

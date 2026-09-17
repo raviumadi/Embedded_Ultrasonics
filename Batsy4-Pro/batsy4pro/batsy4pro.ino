@@ -12,9 +12,17 @@ WHAT IS NEW IN VERSION 1.1.0
   sections. The currently selected control is highlighted.
 - The rotary pushbutton cycles through CARRIER -> CH -> VOLUME; rotating the
   encoder adjusts the highlighted parameter.
-- Heterodyne monitoring input can now be selected directly from channels 1--4.
-  This selection affects only the audible monitoring path; all four raw input
-  channels continue to be recorded unchanged.
+- Monitoring input can now be selected directly from channels 1--4, or set to
+  MX to monitor the sum of all four channels. This selection
+  affects only the audible monitoring path; all four raw input channels
+  continue to be recorded unchanged.
+- Added selectable passthrough (PT) monitoring. Turning the carrier control
+  below 10 kHz or above 85 kHz enters PT mode; reversing the control returns
+  to the nearest heterodyne frequency.
+- In PT mode, the selected channel or MX signal is routed directly to the DAC
+  at the selected output volume, without heterodyne mixing. The OLED carrier
+  field displays PT while passthrough monitoring is active.
+- The startup splash screen displays the firmware version.
 - The next available recording number is read from the SD card at startup and
   shown on the main screen.
 - Recording and saved-status screens show the WAV filename. The saved status
@@ -27,9 +35,12 @@ OVERVIEW
 This sketch implements a high-rate (192 kHz) audio pipeline for ultrasonic work
 (e.g., bat acoustics) with:
 
-  1) Live heterodyne monitoring
-     - A user-selected input channel is multiplied by a local oscillator (carrier) to
-       shift ultrasonic content down to audible.
+  1) Live heterodyne or passthrough monitoring
+     - A user-selected input channel, or the summed MX signal from all four
+       inputs, is multiplied by a local oscillator to shift ultrasonic content
+       down to audible.
+     - PT mode routes the selected channel or MX signal directly to the DAC for
+       monitoring audible-frequency signals without frequency conversion.
      - Output gain is user-adjustable.
 
   2) Rolling 5 s, 4-channel ring buffer in EXTMEM
@@ -40,7 +51,7 @@ This sketch implements a high-rate (192 kHz) audio pipeline for ultrasonic work
      - HOLD button: save 5 s “pre” + up to 10 s “post”. Customisable
 
   4) On-device UI
-     - 128×64 SSD1306 OLED shows carrier frequency, heterodyne input channel,
+     - 128×64 SSD1306 OLED shows carrier frequency, monitoring input selection,
        output volume, selected control, and the next recording number.
      - Rotary push selects CARRIER, CH, or VOLUME; rotation changes the
        highlighted value.
@@ -51,8 +62,8 @@ WHAT THE KNOBS & BUTTONS DO
   • Press (SW): cycle selection → CARRIER, CH, or VOLUME.
   • Rotate:
       - With CARRIER selected: frequency changes in ±5 kHz steps
-        (10–85 kHz limits).
-      - With CH selected: monitored input cycles through channels 1–4.
+        (10–85 kHz), with PT available immediately below and above that range.
+      - With CH selected: monitored input cycles through channels 1–4 and MX.
       - With VOLUME selected: output gain changes in ±5% steps (0–100%).
   • If rotation direction feels reversed, see comment in `loop()` to flip.
 
@@ -68,16 +79,28 @@ SIGNAL FLOW (high level)
 I2S In (2x stereo = 4 channels)
    → AudioRecordQueue (L1,R1,L2,R2)
    → Copy to EXTMEM ring buffer (interleaved int16)
-   → Heterodyne: out[n] = selectedChannel[n] * sin(phase) * outGain
+   → Select CH 1--4, or sum all four inputs in MX mode
+   → Monitor: heterodyne or direct PT routing of the selected signal
    → AudioPlayQueue → I2S Out L/R (mirrored mono)
 
 HETERODYNE DETAILS
 ------------------
 - `carrierFreq` (Hz) sets oscillator frequency (default 45 kHz).
 - `phaseIncrement = 2π * carrierFreq / sampleRate`.
-- The channel selected in HET CH mode is mixed to produce the audible output stream.
+- The signal selected in CH mode is mixed to produce the audible output stream.
+- MX sums the four inputs before heterodyne processing so that a signal present
+  on only one channel retains the same monitor gain as an individually selected
+  channel. The global volume control and hard limiter constrain strong sums.
 - Output volume is scaled by `outGain` (0.0–1.0) and hard-limited to int16.
 - Use a powered headphone to raise volume further.
+
+PASSTHROUGH DETAILS
+-------------------
+- Selecting PT bypasses the carrier multiplication.
+- The selected monitoring channel or MX signal is copied to the DAC through the
+  same output gain and hard-limiting stage used by heterodyne monitoring.
+- Passthrough affects only the live mono monitor output. All four channels are
+  still written to the ring buffer and WAV files as unprocessed input samples.
 
 AUDIO / CLOCKING
 ----------------
@@ -95,7 +118,7 @@ STORAGE FORMAT
 OLED UI (SSD1306 @ 0x3C)
 ------------------------
 - Always shows:
-    CARRIER (kHz)   CH (1--4)   VOLUME (%)
+    CARRIER (kHz/PT)   CH (1--4/MX)   VOLUME (%)
     NEXT REC: #nnn
 - The selected section is highlighted and updates immediately after encoder
   input. Recording and saved screens include the current WAV filename.
@@ -122,7 +145,8 @@ WIRING SUMMARY (Teensy 4.x)
 KEY CONSTANTS TO TUNE
 ---------------------
 - `FREQ_STEP` (default 5000.0f)    : encoder step for frequency (Hz).
-- Min/Max carrier (`FREQ_MIN/MAX`) : 10–85 kHz by default (avoid aliasing).
+- Min/Max carrier (`FREQ_MIN/MAX`) : 10–85 kHz by default; the next encoder
+  position beyond either boundary selects PT.
 - `VOL_STEP` (default 0.05f)       : encoder step for volume (5%).
 - `ringBufferSeconds` (default 5)  : rolling buffer length (seconds). Can be increased upto 10s if you use 16MB PSRAM. Check Teensy 4.1 documentation.
 - `numChannels` (fixed 4)          : interleaved channel count in ring/WAV. You may use more I2S ADC by multiplexing the ports. Upto 8 channel is possible. But must be optimised for realtime processing. 
@@ -132,7 +156,8 @@ PERFORMANCE NOTES
 - Ring buffer lives in EXTMEM (PSRAM) — fast enough for 192 kHz × 4 ch.
 - SD writes are chunked during capture; long forward records rely on the
   loop keeping up with I/O. Fast SD media recommended.
-- The output path is mono (duplicated to L/R), derived from the selected input channel.
+- The output path is mono (duplicated to L/R), derived from one selected input
+  or the sum of all four inputs in MX mode.
 - `totalSamplesWritten` tracks readiness for the 5 s pre-buffer logic.
 
 LIMITATIONS / GOTCHAS
@@ -140,8 +165,11 @@ LIMITATIONS / GOTCHAS
 - No antialias or band-limit filtering on the heterodyne product; The audio output is quite clean and no hissing noise is present. But if you amplifiy the analogue signal, additional bandpass may be necessary to keep the audio clean.
 - The encoder is polled; if UI misses steps under extreme SD loads, reduce
   `TICKS_PER_DETENT`, increase UI update rate, or add a dedicated task.
-- The four recorded channels are raw as-captured; the selected channel is processed
-  for the monitoring output.
+- The four recorded channels are raw as-captured; CH and MX selections affect
+  only the monitoring output.
+- PT mode passes the selected 192 kHz input stream or MX sum directly to the
+  DAC; only its audible-frequency content will be heard through conventional
+  headphones.
 
 TROUBLESHOOTING
 ---------------
@@ -194,6 +222,7 @@ This work is licensed under a
 #define OLED_RESET -1
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+const char FIRMWARE_VERSION[] = "1.1.0";
 
 // --- Buttons (unchanged) ---
 const int buttonHoldPin = 40;
@@ -218,10 +247,21 @@ const int TICKS_PER_DETENT = 4;   // adjust to 2 if your encoder is 2/transition
 enum EditMode { EDIT_FREQ = 0, EDIT_VOL = 1, EDIT_HET_CH = 2 };
 EditMode editMode = EDIT_FREQ;
 uint8_t heterodyneChannel = 1;
+const uint8_t MONITOR_MIX_ALL = 5;
+const uint8_t MONITOR_SELECTION_COUNT = 5;  // CH1--CH4 plus MX
 
 const float FREQ_MIN   = 10000.0f;
 const float FREQ_MAX   = 85000.0f;
 const float FREQ_STEP  = 5000.0f;     // per detent
+const int CARRIER_FREQ_COUNT =
+    (int)((FREQ_MAX - FREQ_MIN) / FREQ_STEP) + 1;
+
+// Carrier selector states:
+//   0                         = PT below the heterodyne range
+//   1..CARRIER_FREQ_COUNT     = FREQ_MIN..FREQ_MAX
+//   CARRIER_FREQ_COUNT + 1    = PT above the heterodyne range
+int carrierSelection = 1 + (int)((45000.0f - FREQ_MIN) / FREQ_STEP);
+bool passthroughMode = false;
 
 volatile float carrierFreq = 45000.0f;
 volatile float outGain     = 0.50f;            // 0.0–1.0
@@ -472,6 +512,9 @@ void drawStatusScreen(const char *status, const char *detail) {
 }
 
 void splashScreen() {
+  char versionLine[24];
+  snprintf(versionLine, sizeof(versionLine), "v%s | 4CH | 192k", FIRMWARE_VERSION);
+
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
 
@@ -483,7 +526,7 @@ void splashScreen() {
 
   display.setFont();
   display.setTextSize(1);
-  drawCenteredText("4-CHANNEL | 192 kHz", 54);
+  drawCenteredText(versionLine, 54);
   display.display();
   delay(2000);
 }
@@ -493,9 +536,17 @@ void drawUI() {
   char volumeText[12];
   char channelText[4];
   char fileText[12];
-  snprintf(carrierText, sizeof(carrierText), "%d", (int)(carrierFreq / 1000.0f));
+  if (passthroughMode) {
+    snprintf(carrierText, sizeof(carrierText), "PT");
+  } else {
+    snprintf(carrierText, sizeof(carrierText), "%d", (int)(carrierFreq / 1000.0f));
+  }
   snprintf(volumeText, sizeof(volumeText), "%d", (int)(outGain * 100.0f));
-  snprintf(channelText, sizeof(channelText), "%u", heterodyneChannel);
+  if (heterodyneChannel == MONITOR_MIX_ALL) {
+    snprintf(channelText, sizeof(channelText), "MX");
+  } else {
+    snprintf(channelText, sizeof(channelText), "%u", heterodyneChannel);
+  }
   snprintf(fileText, sizeof(fileText), "#%03d", fileIndex);
 
   display.clearDisplay();
@@ -509,7 +560,7 @@ void drawUI() {
   drawSelectableSectionTitle("CH", 43, 42, editMode == EDIT_HET_CH);
   drawSelectableSectionTitle("VOLUME", 85, 43, editMode == EDIT_VOL);
 
-  drawLargeValueWithUnit(carrierText, "kHz", 0, 43, 40);
+  drawLargeValueWithUnit(carrierText, passthroughMode ? "" : "kHz", 0, 43, 40);
   drawLargeValueWithUnit(channelText, "", 43, 42, 40);
   drawLargeValueWithUnit(volumeText, "%", 85, 43, 40);
 
@@ -566,23 +617,34 @@ void readAndProcessAudio() {
       ringBuffer[ringWriteIndex++] = ch4[i];
       if (ringWriteIndex >= ringBufferSamples) ringWriteIndex = 0;
 
-      // Heterodyne (mix ch1 with carrier) with volume control
-      float carrier = sinf(phase);
-      phase += phaseIncrement;
-      if (phase >= twoPi) phase -= twoPi;
-
-      int16_t inputSample;
+      float monitorInput;
       switch (heterodyneChannel) {
-        case 2:  inputSample = ch2[i]; break;
-        case 3:  inputSample = ch3[i]; break;
-        case 4:  inputSample = ch4[i]; break;
-        default: inputSample = ch1[i]; break;
+        case 2:  monitorInput = (float)ch2[i]; break;
+        case 3:  monitorInput = (float)ch3[i]; break;
+        case 4:  monitorInput = (float)ch4[i]; break;
+        case MONITOR_MIX_ALL: {
+          const int32_t mixedInputs =
+              (int32_t)ch1[i] + (int32_t)ch2[i] +
+              (int32_t)ch3[i] + (int32_t)ch4[i];
+          monitorInput = (float)mixedInputs;
+          break;
+        }
+        default: monitorInput = (float)ch1[i]; break;
       }
 
-      float mixed = (float)inputSample * carrier * outGain;
-      if (mixed > 32767.f) mixed = 32767.f;
-      if (mixed < -32768.f) mixed = -32768.f;
-      tempOut[i] = (int16_t)mixed;
+      float monitorSample;
+      if (passthroughMode) {
+        monitorSample = monitorInput * outGain;
+      } else {
+        const float carrier = sinf(phase);
+        phase += phaseIncrement;
+        if (phase >= twoPi) phase -= twoPi;
+        monitorSample = monitorInput * carrier * outGain;
+      }
+
+      if (monitorSample > 32767.f) monitorSample = 32767.f;
+      if (monitorSample < -32768.f) monitorSample = -32768.f;
+      tempOut[i] = (int16_t)monitorSample;
     }
 
     // count 128 frames (per channel block written above)
@@ -606,15 +668,31 @@ void applyEncoderSteps(int detents) {
   if (detents == 0) return;
 
   if (editMode == EDIT_FREQ) {
-    carrierFreq += detents * FREQ_STEP;
-    if (carrierFreq < FREQ_MIN) carrierFreq = FREQ_MIN;
-    if (carrierFreq > FREQ_MAX) carrierFreq = FREQ_MAX;
-    phaseIncrement = twoPi * carrierFreq / sampleRate;
+    carrierSelection += detents;
+    if (carrierSelection < 0) carrierSelection = 0;
+    if (carrierSelection > CARRIER_FREQ_COUNT + 1) {
+      carrierSelection = CARRIER_FREQ_COUNT + 1;
+    }
 
-    Serial.print("Carrier Frequency: ");
-    Serial.print(carrierFreq);
-    Serial.print(" Hz, phaseInc: ");
-    Serial.println(phaseIncrement, 8);
+    passthroughMode =
+        carrierSelection == 0 || carrierSelection == CARRIER_FREQ_COUNT + 1;
+
+    if (passthroughMode) {
+      Serial.print("Monitor Mode: PT, Input: ");
+      if (heterodyneChannel == MONITOR_MIX_ALL) {
+        Serial.println("MX");
+      } else {
+        Serial.println(heterodyneChannel);
+      }
+    } else {
+      carrierFreq = FREQ_MIN + (carrierSelection - 1) * FREQ_STEP;
+      phaseIncrement = twoPi * carrierFreq / sampleRate;
+
+      Serial.print("Carrier Frequency: ");
+      Serial.print(carrierFreq);
+      Serial.print(" Hz, phaseInc: ");
+      Serial.println(phaseIncrement, 8);
+    }
   } else if (editMode == EDIT_VOL) {
     outGain += detents * VOL_STEP;
     if (outGain < VOL_MIN) outGain = VOL_MIN;
@@ -625,12 +703,16 @@ void applyEncoderSteps(int detents) {
     Serial.println("%");
   } else {
     int nextChannel = (int)heterodyneChannel - 1 + detents;
-    nextChannel %= numChannels;
-    if (nextChannel < 0) nextChannel += numChannels;
+    nextChannel %= MONITOR_SELECTION_COUNT;
+    if (nextChannel < 0) nextChannel += MONITOR_SELECTION_COUNT;
     heterodyneChannel = (uint8_t)(nextChannel + 1);
 
-    Serial.print("Heterodyne Input Channel: ");
-    Serial.println(heterodyneChannel);
+    Serial.print("Monitor Input: ");
+    if (heterodyneChannel == MONITOR_MIX_ALL) {
+      Serial.println("MX");
+    } else {
+      Serial.println(heterodyneChannel);
+    }
   }
   if (!savedStatusActive) drawUI();
 }
