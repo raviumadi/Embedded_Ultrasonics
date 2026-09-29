@@ -12,6 +12,12 @@ ESPERDYNE is a high-fidelity, open-hardware/open-code bat detector for fieldwork
 
 
 
+**Associated Peer-reviewed Publication**
+
+Umadi, Ravi. ‘ESPERDYNE: A Dual-Band Heterodyne Monitor and Ultrasound Recorder for Bioacoustic Field Surveys’. *Methods in Ecology and Evolution* 17, no. 3 (2026): 768–77. https://doi.org/10.1111/2041-210x.70241.
+
+
+
 <p align="center">
   <img src="../img/esperdyne.jpg" alt="ESPERDYNE Device" width="500"/>
   <br/>

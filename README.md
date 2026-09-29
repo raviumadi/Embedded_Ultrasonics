@@ -8,9 +8,13 @@ This repository contains firmware and supporting material for a family of
 open-source ultrasonic recording and monitoring systems, including the system
 described in:
 
-**"[Batsy4-Pro: An Open-Source Multichannel Ultrasound Recorder for Field Bioacoustics](https://doi.org/10.1101/2025.08.11.669530)"**
+**Associated Peer-reviewed Publications**
 
-Preprint: [https://doi.org/10.1101/2025.08.11.669530](https://doi.org/10.1101/2025.08.11.669530)
+Umadi, Ravi. ‘BATSY4-PRO: An Open-Source Multichannel Ultrasound Recorder for Field Bioacoustics’. *BMC Ecology and Evolution*, September 2026. https://doi.org/10.1186/s12862-026-02592-y.
+
+Umadi, Ravi. ‘ESPERDYNE: A Dual-Band Heterodyne Monitor and Ultrasound Recorder for Bioacoustic Field Surveys’. *Methods in Ecology and Evolution* 17, no. 3 (2026): 768–77. https://doi.org/10.1111/2041-210x.70241.
+
+
 
 Currently, it includes the following complementary systems:  
 
