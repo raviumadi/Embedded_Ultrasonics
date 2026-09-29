@@ -15,7 +15,9 @@ The current firmware is **version 1.1.0**.
 
 Originally designed for bat acoustics work, this code can be adapted for other ultrasonic or high-speed audio projects.
 
-**Linked Peer-reviewed Publication**
+---
+
+## **Linked Peer-reviewed Publication**
 
 Umadi, Ravi. ‘BATSY4-PRO: An Open-Source Multichannel Ultrasound Recorder for Field Bioacoustics’. *BMC Ecology and Evolution*, September 2026. https://doi.org/10.1186/s12862-026-02592-y.
 

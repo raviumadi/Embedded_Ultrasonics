@@ -10,9 +10,9 @@ A pocketable, real-time heterodyne bat-call listener and “tap-to-save” field
 
 ESPERDYNE is a high-fidelity, open-hardware/open-code bat detector for fieldwork and education. It provides **dual-channel heterodyne monitoring at 192 kHz**, an **on-device 5 s ring buffer in PSRAM**, and a **single-tap recording** to microSD in WAV format. It’s designed for reliability in the field and accessibility in budget-limited contexts.
 
+---
 
-
-**Associated Peer-reviewed Publication**
+## **Associated Peer-reviewed Publication**
 
 Umadi, Ravi. ‘ESPERDYNE: A Dual-Band Heterodyne Monitor and Ultrasound Recorder for Bioacoustic Field Surveys’. *Methods in Ecology and Evolution* 17, no. 3 (2026): 768–77. https://doi.org/10.1111/2041-210x.70241.
 
